@@ -4,7 +4,6 @@ from config import PYTESSERACT_DEFAULT_CONFIG
 from pathlib import Path
 from tqdm import tqdm
 import numpy as np
-import os
 
 class ImageProcessor:
 
