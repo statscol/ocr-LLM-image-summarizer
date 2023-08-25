@@ -4,8 +4,15 @@ from config import PYTESSERACT_DEFAULT_CONFIG
 from pathlib import Path
 from tqdm import tqdm
 import numpy as np
+from langchain.tools import BaseTool
+from typing import Optional, Type
+from langchain.callbacks.manager import AsyncCallbackManagerForToolRun
 
-class ImageProcessor:
+
+class ImageProcessor(BaseTool):
+
+    name = "Image Processor"
+    description = "This method gets an image path corresponding to a receipt or invoice and tries to preprocess it returning all the text in the image using an OCR system."
 
     def binarize(self,img_path:str):
         """
@@ -66,12 +73,28 @@ class ImageProcessor:
         text=pytesseract.image_to_string(img,lang=lang,config=PYTESSERACT_DEFAULT_CONFIG)   
         return text
     
+    def _run(self,img_path):
+        img=self.process_image(str(img_path))
+        text=self.img_to_text(img)
+        return text
+
+    # as used in langchain documentation https://python.langchain.com/docs/modules/agents/tools/custom_tools
+    async def _arun(self, query: str, run_manager: Optional[AsyncCallbackManagerForToolRun] = None
+    ) -> str:
+        """Use the tool asynchronously."""
+        raise NotImplementedError("custom_search does not support async")
+
+
+
 if __name__=="__main__":
     processor=ImageProcessor()
     image_paths=list(Path("images/raw").glob("*.jpg"))
     for img_pth in tqdm(image_paths,desc="Img Preproc+ OCR "):
         img_processed=processor.process_image(str(img_pth))
-        text=processor.img_to_text(img_processed)
+        text=processor.run(str(img_pth))
         cv2.imwrite(f"images/processed/{img_pth.name}",img_processed)
         with open(f"images/text/{img_pth.name.replace('.jpg','.txt')}",'w') as f:
             f.write(text)
+
+
+
