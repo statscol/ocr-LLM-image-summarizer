@@ -73,17 +73,19 @@ class ImageProcessor(BaseTool):
         text=pytesseract.image_to_string(img,lang=lang,config=PYTESSERACT_DEFAULT_CONFIG)   
         return text
     
-    def _run(self,img_path):
+    def _run(self,img_path,save_to_disk=False):
         img=self.process_image(str(img_path))
         text=self.img_to_text(img)
+        if save_to_disk:
+            with open(f"/tmp/{str(img_pth).split('/')[-1].replace('.jpg','.txt')}",'w') as f:
+                f.write(text)
         return text
 
     # as used in langchain documentation https://python.langchain.com/docs/modules/agents/tools/custom_tools
-    async def _arun(self, query: str, run_manager: Optional[AsyncCallbackManagerForToolRun] = None
+    async def _arun(self, img_path: str,save_to_disk=False, run_manager: Optional[AsyncCallbackManagerForToolRun] = None
     ) -> str:
         """Use the tool asynchronously."""
         raise NotImplementedError("custom_search does not support async")
-
 
 
 if __name__=="__main__":
@@ -91,10 +93,7 @@ if __name__=="__main__":
     image_paths=list(Path("images/raw").glob("*.jpg"))
     for img_pth in tqdm(image_paths,desc="Img Preproc+ OCR "):
         img_processed=processor.process_image(str(img_pth))
-        text=processor.run(str(img_pth))
+        text=processor.run(str(img_pth),save_to_disk=True)
         cv2.imwrite(f"images/processed/{img_pth.name}",img_processed)
-        with open(f"images/text/{img_pth.name.replace('.jpg','.txt')}",'w') as f:
-            f.write(text)
-
 
 

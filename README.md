@@ -34,7 +34,6 @@ python3 src/text_summarizer.py
 
     ```python
     {
-    "COMENSALES": "8",
     "ZUMO TOMATE 500 o": "1",
     "PINTA CERVEZA 7.00": "13",
     "COCA COLA 5.00": "6",
@@ -69,3 +68,12 @@ See this [HF Space](https://huggingface.co/spaces/jhonparra18/receipt-llm-analyz
 # Tests
 
 Some unit tests were included, run `pytest` in the root folder.
+
+
+# To do
+
+Things one could work on or test are as follows:
+
+- LLM summarization will heavily depend on the OCR output, this needs to be improved (Using different image preprocessing techniques as well as other OCR systems like PaddleOCR | cloud services)
+- Agent performance is a concern, using sequentialChains or injecting OCR output to a chat model (ChatOpenAI) class instead of an agent could boost response times.
+- Using a multimodal approach is the most appropiate way to go for this problem. Testing LLMs like GPT4 or open source like IDEFICS would be a good option. However, good old Regex should be the baseline approach.

@@ -12,3 +12,8 @@ def save_uploaded_file(uploadedfile):
 
 def reset_chat():
     st.session_state.messages = []
+
+def read_txt_file(path_txt:str):
+    with open(path_txt,'r') as f:
+        text=" ".join(f.readlines()).strip()
+    return text
