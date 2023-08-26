@@ -1,0 +1,8 @@
+opencv-python
+numpy 
+requests
+langchain
+openai
+pytesseract
+python-dotenv
+streamlit
