@@ -11,8 +11,8 @@ from langchain.callbacks.manager import AsyncCallbackManagerForToolRun
 
 class ImageProcessor(BaseTool):
 
-    name = "Image Processor"
-    description = "This method gets an image path corresponding to a receipt or invoice and tries to preprocess it returning all the text in the image using an OCR system."
+    name = "ImageProcessor"
+    description = "useful when you need to extract info from an image in an img_path corresponding to a receipt or invoice and tries to preprocess it returning all the text in the image using an OCR system."
 
     def binarize(self,img_path:str):
         """
