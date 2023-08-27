@@ -32,17 +32,17 @@ class ImageProcessor(BaseTool):
         new = np.clip(new, 0, 255).astype(np.uint8)
         return new
         
-    def deskew(self,image):
-        coords = np.column_stack(np.where(image > 0))
+    def deskew(self,img):
+        coords = np.column_stack(np.where(img > 0))
         angle = cv2.minAreaRect(coords)[-1]
         if angle < -45:
             angle = -(90 + angle)
         else:
             angle = -angle
-        (h, w) = image.shape[:2]
+        (h, w) = img.shape[:2]
         center = (w // 2, h // 2)
         M = cv2.getRotationMatrix2D(center, angle, 1.0)
-        rotated = cv2.warpAffine(image, M, (w, h), flags=cv2.INTER_CUBIC, borderMode=cv2.BORDER_REPLICATE)
+        rotated = cv2.warpAffine(img, M, (w, h), flags=cv2.INTER_CUBIC, borderMode=cv2.BORDER_REPLICATE)
         return rotated
     
     def dilate_erode(self,img):
@@ -77,7 +77,7 @@ class ImageProcessor(BaseTool):
         img=self.process_image(str(img_path))
         text=self.img_to_text(img)
         if save_to_disk:
-            with open(f"/tmp/{str(img_pth).split('/')[-1].replace('.jpg','.txt')}",'w') as f:
+            with open(f"/tmp/{str(img_path).split('/')[-1].replace('.jpg','.txt')}",'w') as f:
                 f.write(text)
         return text
 
@@ -85,7 +85,7 @@ class ImageProcessor(BaseTool):
     async def _arun(self, img_path: str,save_to_disk=False, run_manager: Optional[AsyncCallbackManagerForToolRun] = None
     ) -> str:
         """Use the tool asynchronously."""
-        raise NotImplementedError("custom_search does not support async")
+        raise NotImplementedError("does not support async")
 
 
 if __name__=="__main__":
