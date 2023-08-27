@@ -1,23 +1,20 @@
+import sys
+sys.path.append("../src")
 import streamlit as st
 from langchain.callbacks import StreamlitCallbackHandler
 import numpy as np
 from PIL import Image
 from app_utils import TEMP_DIR_NAME,save_uploaded_file,reset_chat
 import os
-import sys
-from text_summarizer import agent
-from image_processor import ImageProcessor
 from pathlib import Path
-
-sys.path.append("../src")
-
+from text_summarizer import agent,processor
 
 BOT_DEFAULT_MSG="Hello 👋 I'm a test AI assistant to help you with your questions about an input file, or feel free to ask me anything"
 st.set_page_config(page_title="Invoice|Receipt LLM Summarizer",layout='wide',page_icon=":shark:")
 
 #placeholders for temporal image path and an image processor in case we want to read img text separately
 IMAGE_TMP_PATH=None
-PROCESSOR=ImageProcessor()
+PROCESSOR=processor
 img_text=""
 
 with st.sidebar:

@@ -25,9 +25,7 @@ prompt = OpenAIFunctionsAgent.create_prompt(system_message=system_message)
 llm = ChatOpenAI(temperature=0.1, model=OPEN_AI_MODEL_NAME,)
 
 #tools to use as functions to trigger from the llm
-tools = [
-    ImageProcessor()
-]
+tools = [processor]
 
 #memory placeholder
 # conversational_memory = ConversationBufferWindowMemory(
@@ -35,7 +33,6 @@ tools = [
 #     k=5,
 #     return_messages=True
 # )
-
 
 agent_kwargs = {
     "extra_prompt_messages": [MessagesPlaceholder(variable_name="memory")],
