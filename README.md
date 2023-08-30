@@ -19,6 +19,7 @@ Testing options to extend LLM capabilities with Langchain Agents to analyze imag
 
 ```bash
 chmod +x setup.sh
+./setup.sh
 pip install -r requirements.txt
 ```
 
