@@ -1,11 +1,13 @@
-# invoice-LLM-summarizer
+# OCR-LLM-image-summarizer
 
 
-Invoice| Receipt analyzer using openCV+OCR+LLM 
+Testing options to extend LLM capabilities with Langchain Agents to analyze images, this time through OCR systems.
+
 
 ![image](./images/analyzer-infra.jpeg)
 
-- Images were obtained from google images
+- Mainly used for images from receipts, invoices or any similar image with text. eg. a CV (Note: this was originally meant to be used with receipts or invoices)
+- Some test images obtained from google images can be found in `images/raw`
 - A preprocessing module was included for images, (binarization, watermark removal)
 - Pytesseract is used for as the default OCR engine
 - LLM (OpenAI) - LangChain conversational agent which triggers a tool(functions-`AgentType.OPENAI_FUNCTIONS`) 
@@ -67,7 +69,7 @@ See this [HF Space](https://huggingface.co/spaces/jhonparra18/receipt-llm-analyz
 
 # Tests
 
-Some unit tests were included, run `pytest` in the root folder.
+Some unit tests were included, run `pytest` from the root folder of this repo.
 
 
 # To do
