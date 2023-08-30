@@ -9,18 +9,20 @@ import os
 from pathlib import Path
 from text_summarizer import agent,processor
 
-BOT_DEFAULT_MSG="Hello 👋 I'm a test AI assistant to help you with your questions about an input file, or feel free to ask me anything"
-st.set_page_config(page_title="Invoice|Receipt LLM Summarizer",layout='wide',page_icon=":shark:")
+BOT_DEFAULT_MSG="Hello 👋 I'm a test AI OCR assistant to help you with your questions about your receipts or similar images containing text. Also feel free to ask me anything"
+
+st.set_page_config(page_title="OCR+LLM Image summarizer",layout='wide',page_icon=":shark:")
 
 #placeholders for temporal image path and an image processor in case we want to read img text separately
 IMAGE_TMP_PATH=None
 PROCESSOR=processor
 img_text=""
+inject_text=False
 
 with st.sidebar:
 
     st.markdown(
-        f"<h1 style='text-align: center;'> Invoice|Receipt LLM Summarizer using OpenCV+Tesseract+LLM</h1><br><br>",
+        f"<h1 style='text-align: center;'> Invoice|Receipt Summarizer using OpenCV+Tesseract+LLM</h1><br><br>",
         unsafe_allow_html=True
     )
     input_image = st.file_uploader(label='Receipt|Invoice Image',help="Upload an image",type=['jpg','png','jpeg'])
@@ -45,7 +47,7 @@ with st.sidebar:
 
 # Initialize chat history based on streamlit doc for chat applications https://docs.streamlit.io/knowledge-base/tutorials/build-conversational-apps
 if "messages" not in st.session_state:
-    st.session_state.messages = []
+    reset_chat()
     st.session_state.messages.append({"role": "assistant", "content": BOT_DEFAULT_MSG})
 
 
@@ -54,21 +56,23 @@ for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
 
+prompt=st.chat_input("Write a message to the AI assistant | Escribe un mensaje para el asistente de IA")
 
-if prompt := st.chat_input("Write a message to the AI assistant | Escribe un mensaje para el asistente de IA"):
-    
-    st.chat_message("user").markdown(prompt)
+if prompt:
+
     st.session_state.messages.append({"role": "user", "content": prompt})
-    
-    prompt_ad=f'{prompt}, img path: {IMAGE_TMP_PATH}' if (input_image is not None and not inject_text) else f'{prompt} text: {img_text}'
-    ##streamlit callback https://python.langchain.com/docs/integrations/callbacks/streamlit
-    st_callback = StreamlitCallbackHandler(st.container()) 
+    st.chat_message("user").markdown(prompt)
+    prompt_ad=f'{prompt}, img path: {IMAGE_TMP_PATH}' if (input_image is not None and not inject_text) else (f'{prompt} text: {img_text}' if inject_text else prompt)
+    #streamlit callback https://python.langchain.com/docs/integrations/callbacks/streamlit
+    print(f'PROMPT: {prompt_ad}')
+    st_callback = StreamlitCallbackHandler(st.container())
+
     #hotfix to errors
     try:
         response = agent.run(prompt_ad,callbacks=[st_callback])
     except ValueError as e:
         response = "Sorry i could't understand your last question."
-    with st.chat_message("assistant"):
-        st.markdown(response)
+
     # Add assistant response to chat history
     st.session_state.messages.append({"role": "assistant", "content": response})
+    st.chat_message("assistant").markdown(response)

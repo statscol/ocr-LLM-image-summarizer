@@ -7,14 +7,14 @@ import numpy as np
 from langchain.tools import BaseTool
 from typing import Optional, Type
 from langchain.callbacks.manager import AsyncCallbackManagerForToolRun
-
+from PIL import Image
 
 class ImageProcessor(BaseTool):
 
     name = "ImageProcessor"
     description = "useful when you need to extract info from an image in an img_path corresponding to a receipt or invoice and tries to preprocess it returning all the text in the image using an OCR system."
 
-    def binarize(self,img_path:str):
+    def binarize(self,img_path):
         """
         This function is to binarize an input image
         :param img: image in format of (h, w, channel)
@@ -60,11 +60,27 @@ class ImageProcessor(BaseTool):
         img= cv2.dilate(img, kernel2, iterations=1)
         return img
 
+
+    def detect_angle(self,img_path):
+        """detects angle of rotation in the image using the text lines found"""
+        ##taken from https://stackoverflow.com/questions/13872331/rotating-an-image-with-orientation-specified-in-exif-using-python-without-pil-in
+        pil_img=Image.open(img_path)
+        img_exif = pil_img.getexif()
+        if len(img_exif):
+            if img_exif[274] == 3:
+                pil_img = pil_img.transpose(Image.ROTATE_180)
+            elif img_exif[274] == 6:
+                pil_img = pil_img.transpose(Image.ROTATE_270)
+            elif img_exif[274] == 8:
+                pil_img = pil_img.transpose(Image.ROTATE_90)
+
+        return np.array(pil_img)[:, :, ::-1] #convert to BGR
+    
     def opening(self,image):
         kernel = np.ones((5,5),np.uint8)
         return cv2.morphologyEx(image, cv2.MORPH_OPEN, kernel)
 
-    def process_image(self,img_path:str):
+    def process_image(self,img_path):
         img=self.binarize(img_path)
         img=self.remove_watermark(img)
         return img
@@ -74,11 +90,12 @@ class ImageProcessor(BaseTool):
         return text
     
     def _run(self,img_path,save_to_disk=False):
-        img=self.process_image(str(img_path))
+        img=self.process_image(img_path)
         text=self.img_to_text(img)
         if save_to_disk:
             with open(f"/tmp/{str(img_path).split('/')[-1].replace('.jpg','.txt')}",'w') as f:
                 f.write(text)
+            cv2.imwrite(f"images/rotated-{img_pth.name}",img)
         return text
 
     # as used in langchain documentation https://python.langchain.com/docs/modules/agents/tools/custom_tools
@@ -92,8 +109,7 @@ if __name__=="__main__":
     processor=ImageProcessor()
     image_paths=list(Path("images/raw").glob("*.jpg"))
     for img_pth in tqdm(image_paths,desc="Img Preproc+ OCR "):
-        img_processed=processor.process_image(str(img_pth))
         text=processor.run(str(img_pth),save_to_disk=True)
-        cv2.imwrite(f"images/processed/{img_pth.name}",img_processed)
+        print(img_pth,text)
 
 
